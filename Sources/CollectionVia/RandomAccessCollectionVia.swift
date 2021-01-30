@@ -7,58 +7,45 @@
 
 import Foundation
 
-//The property & function descriptions don't seem to copy over from the collection protocols, so I left them in.
-
-public protocol RandomAccessCollectionVia : RandomAccessCollection, BidirectionalCollectionVia where CollectionType: RandomAccessCollection {}
+public protocol RandomAccessCollectionVia: RandomAccessCollection where Element == CollectionType.Element, Iterator == CollectionType.Iterator {
+    associatedtype CollectionType: RandomAccessCollection
+    @inlinable static var collectionVia: KeyPath<Self, CollectionType> {get}
+}
 
 extension RandomAccessCollectionVia {
-    /// The indices that are valid for subscripting the collection, in ascending
-    /// order.
-    ///
-    /// A collection's `indices` property can hold a strong reference to the
-    /// collection itself, causing the collection to be nonuniquely referenced.
-    /// If you mutate the collection while iterating over its indices, a strong
-    /// reference can result in an unexpected copy of the collection. To avoid
-    /// the unexpected copy, use the `index(after:)` method starting with
-    /// `startIndex` to produce indices instead.
-    ///
-    ///     var c = MyFancyCollection([10, 20, 30, 40, 50])
-    ///     var i = c.startIndex
-    ///     while i != c.endIndex {
-    ///         c[i] /= 5
-    ///         i = c.index(after: i)
-    ///     }
-    ///     // c == MyFancyCollection([2, 4, 6, 8, 10])
-    var indices: CollectionType.Indices { self[keyPath: Self.collectionVia].indices }
+    @inlinable public var startIndex: CollectionType.Index { self[keyPath: Self.collectionVia].startIndex }
+    @inlinable public var endIndex: CollectionType.Index   { self[keyPath: Self.collectionVia].endIndex }
+    @inlinable public var indices: CollectionType.Indices  { self[keyPath: Self.collectionVia].indices }
+    @inlinable public var isEmpty: Bool                    { self[keyPath: Self.collectionVia].isEmpty }
+    @inlinable public var count: Int                       { self[keyPath: Self.collectionVia].count }
     
-    /// Accesses a contiguous subrange of the collection's elements.
-    ///
-    /// The accessed slice uses the same indices for the same elements as the
-    /// original collection uses. Always use the slice's `startIndex` property
-    /// instead of assuming that its indices start at a particular value.
-    ///
-    /// This example demonstrates getting a slice of an array of strings, finding
-    /// the index of one of the strings in the slice, and then using that index
-    /// in the original array.
-    ///
-    ///     let streets = ["Adams", "Bryant", "Channing", "Douglas", "Evarts"]
-    ///     let streetsSlice = streets[2 ..< streets.endIndex]
-    ///     print(streetsSlice)
-    ///     // Prints "["Channing", "Douglas", "Evarts"]"
-    ///
-    ///     let index = streetsSlice.firstIndex(of: "Evarts")    // 4
-    ///     print(streets[index!])
-    ///     // Prints "Evarts"
-    ///
-    /// - Parameter bounds: A range of the collection's indices. The bounds of
-    ///   the range must be valid indices of the collection.
-    ///
-    /// - Complexity: O(1)
-//    I understand that these can have more performant implementations depending on exactly which protocols a type conforms to, but we're just forwarding them here so I don't think it matters. Also I don't want to deal with any "ambiguous whatever" errors until I know everything's working correctly.
-//    subscript(bounds: Range<CollectionType.Index>) -> CollectionType.SubSequence { get }
-//
-//    override subscript(position: Self.Index) -> Self.Element { get }
+    @inlinable public func makeIterator() -> CollectionType.Iterator {
+        self[keyPath: Self.collectionVia].makeIterator()
+    }
+    @inlinable public func index(_ i: CollectionType.Index, offsetBy distance: Int) -> CollectionType.Index {
+        self[keyPath: Self.collectionVia].index(i, offsetBy: distance)
+    }
+    @inlinable public func index(_ i: CollectionType.Index, offsetBy distance: Int, limitedBy limit: CollectionType.Index) -> CollectionType.Index? {
+        self[keyPath: Self.collectionVia].index(i, offsetBy: distance, limitedBy: limit)
+    }
+    @inlinable public func distance(from start: CollectionType.Index, to end: CollectionType.Index) -> Int {
+        self[keyPath: Self.collectionVia].distance(from: start, to: end)
+    }
+    @inlinable public func index(after i: CollectionType.Index) -> CollectionType.Index {
+        self[keyPath: Self.collectionVia].index(after: i)
+    }
+    @inlinable public func index(before i: CollectionType.Index) -> CollectionType.Index {
+       self[keyPath: Self.collectionVia].index(before: i)
+    }
+    @inlinable public func formIndex(after i: inout CollectionType.Index) {
+        self[keyPath: Self.collectionVia].formIndex(after: &i)
+    }
+    @inlinable public func formIndex(before i: inout CollectionType.Index) {
+        self[keyPath: Self.collectionVia].formIndex(before: &i)
+    }
+}
 
-    var startIndex: CollectionType.Index { self[keyPath: Self.collectionVia].startIndex }
-    var endIndex: CollectionType.Index { self[keyPath: Self.collectionVia].endIndex }
+extension RandomAccessCollectionVia {
+    @inlinable public subscript(position: CollectionType.Index) -> CollectionType.Element          { self[keyPath: Self.collectionVia][position] }
+    @inlinable public subscript(bounds: Range<CollectionType.Index>) -> CollectionType.SubSequence { self[keyPath: Self.collectionVia][bounds] }
 }
