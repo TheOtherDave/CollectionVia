@@ -1,6 +1,6 @@
 # CollectionVia
 
-A way to get `Sequence`, `Collection`, `BidirectionalCollection`, `RandomAccessCollection`, `RangeReplaceableCollection`, or `MutableCollection` conformance for types where just want to forward all that stuff to an instance variable (or anything else you can get a keypath to, I suppose). It works by having the user define a static `collectionVia` keypath and then uses protocol extensions to fill everything in.
+A way to get `Sequence`, `Collection`, `BidirectionalCollection`, `RandomAccessCollection`, `RangeReplaceableCollection`, or `MutableCollection` conformance for types where you just want to forward all that stuff to an instance variable (or anything else you can get a keypath to, I suppose). It works by having the user define a static `collectionVia` keypath and then uses protocol extensions to fill everything in.
 
 In the Standard Library, a lot of these protocols refine others (`Collection` refines `Sequence`, `MutableCollection` refines `Collection`, etc). I haven't figured out a way to make this work with the type inference system... something to do with `KeyPath` vs `WritableKeyPath` for `MutableCollectionVia`, I think, but I'm not sure yet.
 
